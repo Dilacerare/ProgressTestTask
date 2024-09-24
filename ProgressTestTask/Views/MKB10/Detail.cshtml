@@ -1,0 +1,85 @@
+﻿@model IEnumerable<ProgressTestTask.Domain.Entity.MKB10>
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="p-3 mb-4 rounded" style="background-color: rgba(255, 255, 255, 0.8);">
+        <h2 class="mb-0">@ViewBag.Title</h2>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Код</th>
+                    <th scope="col">Имя</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var mkb10 in @Model)
+                {
+                    <tr>
+                        @if (mkb10.Node_count == 0)
+                        {
+                            <td class="copy-code" data-code="@mkb10.Code">@mkb10.Code</td>
+                            <td>@mkb10.Name</td>
+                        }
+                        else
+                        {
+                            <td>@mkb10.Code</td>
+                            <td><a asp-controller="MKB10" asp-action="Detail" asp-route-id="@mkb10.Id">@mkb10.Name</a></td>
+                        }
+                        
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Функция для копирования текста в буфер обмена
+        function copyToClipboard(text, event) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Показать сообщение об успешном копировании
+                showCopyMessage(event.pageX, event.pageY, 'Код скопирован');
+            }).catch(err => {
+                console.error('Ошибка при копировании текста: ', err);
+                alert('Ошибка при копировании текста');
+            });
+        }
+
+        // Функция для показа сообщения рядом с курсором
+        function showCopyMessage(x, y, message) {
+            const copyMessage = document.createElement('div');
+            copyMessage.textContent = message;
+            copyMessage.style.position = 'absolute';
+            copyMessage.style.top = `${y}px`;
+            copyMessage.style.left = `${x}px`;
+            copyMessage.style.backgroundColor = '#28a745';
+            copyMessage.style.color = '#fff';
+            copyMessage.style.padding = '5px 10px';
+            copyMessage.style.borderRadius = '5px';
+            copyMessage.style.fontSize = '12px';
+            copyMessage.style.zIndex = 1000;
+            copyMessage.style.pointerEvents = 'none'; // Чтобы не мешать кликам
+            document.body.appendChild(copyMessage);
+
+            // Удалить сообщение через 1.5 секунды
+            setTimeout(() => {
+                copyMessage.remove();
+            }, 1500);
+        }
+
+        // Назначаем обработчик на ячейки с кодом
+        document.querySelectorAll('.copy-code').forEach(el => {
+            el.addEventListener('click', (event) => {
+                const code = el.getAttribute('data-code');
+                copyToClipboard(code, event);
+            });
+        });
+    </script>
+}

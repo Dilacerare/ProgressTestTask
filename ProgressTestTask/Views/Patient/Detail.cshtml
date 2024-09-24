@@ -1,0 +1,141 @@
+﻿@model ProgressTestTask.Domain.ViewModels.PatientDetailViewModel
+
+@{
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/css/ui.jqgrid.min.css" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/smoothness/jquery-ui.css" />
+
+<style>
+    #jqg {
+        margin-top: 20px;
+    }
+
+    #addVisitDialog label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    #addVisitDialog select, #addVisitDialog input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    #exportXmlButton {
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #exportXmlButton:hover {
+        background-color: #218838;
+    }
+
+    .ui-dialog-titlebar-close {
+        background-color: transparent;
+        border: none;
+    }
+
+    .ui-dialog-buttonset button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .ui-dialog-buttonset button:hover {
+        background-color: #0056b3;
+    }
+
+    .info-container {
+        margin: 20px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .info-label {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .info-value {
+        font-size: 1.1em;
+    }
+</style>
+
+<h2 class="text-center">@Model.LastName @Model.FirstName @Model.Patronymic</h2>
+
+<div class="container">
+    <div class="info-container">
+        <label class="info-label">Дата рождения:</label>
+        <span class="info-value">@Model.DateOfBirth.ToString("dd.MM.yyyy")</span>
+    </div>
+    <div class="info-container">
+        <label class="info-label">Телефон:</label>
+        <span class="info-value">@Model.Phone</span>
+    </div>
+    <table id="jqg"></table>
+    <div id="jpager"></div>
+    <button id="exportXmlButton" class="btn btn-success">Экспорт в XML</button>
+</div>
+
+@section Scripts
+{
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/jquery.jqgrid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#jqg").jqGrid(
+                {
+                    url: '@Url.Action("GetDetailData", "Patient")?id=' + '@Model.PatientId',
+                    datatype: "json",
+                    colNames: ['Диагноз', 'Код', 'Дата посещения'],
+                    colModel: [
+                        { name: 'DiagnosisName', index: 'DiagnosisName', width: 300, sortable: true },
+                        { name: 'Diagnosis', index: 'Diagnosis', width: 50, sortable: true },
+                        { name: 'VisitDate', index: 'VisitDate', width: 100, formatter: 'date', sorttype: 'date', sortable: false }
+                    ],
+                    rowNum: 5,
+                    rowList: [10, 20, 30],
+                    pager: '#jpager',
+                    loadonce: true, 
+                    sortname: 'VisitDate',
+                    sortorder: "desc",
+                    caption: "Приёмы",
+                    autowidth: true
+                });
+            $("#jqg").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false });
+            $("#jqg").jqGrid('navGrid', '#jpager', {
+                add: false,
+                del: false,
+                edit: false,
+                search: false,
+                refresh: true,
+                refreshtext: "Обновить"
+            });
+            $("#clearFilters").click(function () {
+                $("#jqg").jqGrid("clearGridData", true);
+                $("#jqg").jqGrid("setGridParam", { data: data }).trigger("reloadGrid");
+            });
+        });
+
+        $("#exportXmlButton").click(function () {
+            var patientId = '@Model.PatientId';
+            window.location.href = '@Url.Action("ExportToXml", "Patient")?id=' + patientId;
+        });
+    </script>
+}

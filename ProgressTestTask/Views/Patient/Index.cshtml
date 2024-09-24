@@ -1,0 +1,220 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/css/ui.jqgrid.min.css" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
+<style>
+    #jqg {
+        margin-top: 20px;
+    }
+
+    #addPatientDialog label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    #addPatientDialog input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    #addPatientBtn {
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #addPatientBtn:hover {
+        background-color: #218838;
+    }
+
+    .ui-dialog-titlebar-close {
+        background-color: transparent;
+        border: none;
+    }
+
+    .ui-dialog-buttonset button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .ui-dialog-buttonset button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<h2 class="text-center">Пациенты</h2>
+<div class="container">
+    <table id="jqg"></table>
+    <div id="jpager"></div>
+    <button id="addPatientBtn" class="btn btn-success">Добавить пациента</button>
+
+    <!-- Диалоговое окно для добавления нового пациента -->
+    <div id="addPatientDialog" title="Добавить нового пациента" style="display:none;">
+        <form id="addPatientForm" class="form-group">
+            <label for="LastName">Фамилия:</label>
+            <input type="text" id="LastName" name="LastName" class="form-control" required />
+            <span class="text-danger" id="LastNameError"></span>
+
+            <label for="FirstName">Имя:</label>
+            <input type="text" id="FirstName" name="FirstName" class="form-control" required />
+            <span class="text-danger" id="FirstNameError"></span>
+
+            <label for="Patronymic">Отчество:</label>
+            <input type="text" id="Patronymic" name="Patronymic" class="form-control" required />
+            <span class="text-danger" id="PatronymicError"></span>
+
+            <label for="DateOfBirth">Дата рождения:</label>
+            <input type="date" id="DateOfBirth" name="DateOfBirth" class="form-control" required />
+            <span class="text-danger" id="DateOfBirthError"></span>
+
+            <label for="Phone">Телефон:</label>
+            <input type="text" id="Phone" name="Phone" class="form-control" required />
+            <span class="text-danger" id="PhoneError"></span>
+        </form>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/jquery.jqgrid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () 
+        {
+            // Инициализация таблицы jqGrid для отображения пациентов
+            $("#jqg").jqGrid(
+            {
+                url: '@Url.Action("GetData")',
+                datatype: "json",
+                colNames: ['Фамилия', 'Имя', 'Отчество', 'Дата рождения', 'Телефон', 'Детали'],
+                colModel: [
+                    { name: 'LastName', index: 'LastName', width: 150, sortable: true },
+                    { name: 'FirstName', index: 'FirstName', width: 150, sortable: true },
+                    { name: 'Patronymic', index: 'Patronymic', width: 150, sortable: true },
+                    { name: 'DateOfBirth', index: 'DateOfBirth', width: 100, formatter: 'date', sorttype: 'date', sortable: false },
+                    { name: 'Phone', index: 'Phone', width: 80, sortable: true },
+                    { name: 'DetailsLink', index: 'DetailsLink', width: 100, sortable: false, formatter: formatDetailLink } // Форматирование ссылки для деталей
+                ],
+                rowNum: 5,
+                rowList: [5, 10, 20],
+                pager: '#jpager',
+                loadonce: true, 
+                sortname: 'LastName',
+                sortorder: "desc",
+                caption: "Пациенты",
+                height: "auto",
+                autowidth: true
+            });
+
+
+            $("#jqg").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false });
+
+            $("#jqg").jqGrid('navGrid', '#jpager', {
+                add: false,
+                del: false,
+                edit: false,
+                search: false,
+                refresh: true,
+                refreshtext: "Обновить"
+            });
+
+            // Функция для форматирования ссылки на детали пациента
+            function formatDetailLink(cellvalue, options, rowObject) {
+                return '<a href="/Patient/Detail?id=' + rowObject.PatientId + '">Просмотр</a>';
+            }
+        });
+
+        // Ограничение ввода для фамилии, имени и отчества (только буквы)
+        $("#LastName, #FirstName, #Patronymic").on('input', function () {
+            const value = $(this).val();
+            const newValue = value.replace(/[^а-яА-Яa-zA-ZёЁ]/g, ''); // Разрешить только буквы русского и латинского алфавита
+            $(this).val(newValue);
+        });
+
+        // Открытие диалогового окна добавления пациента
+        $("#addPatientBtn").click(function () {
+            // Настройка маски для ввода телефона
+            $("#Phone").inputmask({
+                mask: "+7 (999) 999-99-99",
+                showMaskOnHover: false
+            });
+
+            // Настройка диалогового окна
+            $("#addPatientDialog").dialog({
+                autoOpen: true,
+                modal: true,
+                buttons: {
+                    "Добавить": function () {
+                        var newPatient = {
+                            LastName: $("#LastName").val(),
+                            FirstName: $("#FirstName").val(),
+                            Patronymic: $("#Patronymic").val(),
+                            DateOfBirth: $("#DateOfBirth").val(),
+                            Phone: $("#Phone").val()
+                        };
+
+                        // AJAX-запрос на добавление нового пациента
+                        $.ajax({
+                            url: '@Url.Action("AddPatient")',
+                            type: 'POST',
+                            data: newPatient,
+                            success: function (response) {
+                                $("#addPatientDialog").dialog("close");
+                                $("#addPatientForm")[0].reset();
+                                Swal.fire('Успех', 'Пациент добавлен успешно!', 'success').then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function (xhr) {
+                                var errors = xhr.responseJSON;
+
+                                
+                                $(".text-danger").text("");
+
+                                if (errors.LastName) {
+                                    $("#LastNameError").text(errors.LastName.join(", "));
+                                }
+                                if (errors.FirstName) {
+                                    $("#FirstNameError").text(errors.FirstName.join(", "));
+                                }
+                                if (errors.Patronymic) {
+                                    $("#PatronymicError").text(errors.Patronymic.join(", "));
+                                }
+                                if (errors.DateOfBirth) {
+                                    $("#DateOfBirthError").text(errors.DateOfBirth.join(", "));
+                                }
+                                if (errors.Phone) {
+                                    $("#PhoneError").text(errors.Phone.join(", "));
+                                }
+
+                                Swal.fire('Ошибка', 'Исправьте ошибки валидации и попробуйте снова.', 'error');
+                            }
+                        });
+                    },
+                    "Закрыть": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+    </script>
+}

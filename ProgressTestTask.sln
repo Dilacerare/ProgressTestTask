@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProgressTestTask", "ProgressTestTask\ProgressTestTask.csproj", "{EC6A0177-9C61-4B58-9F19-B654C7BB74D4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProgressTestTask.DAL", "ProgressTestTask.DAL", "{16D0D3D8-976D-40F8-B76E-1974750600AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProgressTestTask.Domain", "ProgressTestTask.Domain", "{7D7CAB4B-5FCA-4603-9CB7-89AFE76E0CDB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProgressTestTask.Service", "ProgressTestTask.Service", "{2AC96A76-0768-424F-B6E9-A9D6D66EEC20}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProgressTestTask.DAL", "ProgressTestTask.DAL\ProgressTestTask.DAL.csproj", "{284C73F7-5C34-4942-A691-26517B2C4A9E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProgressTestTask.Domain", "ProgressTestTask.Domain\ProgressTestTask.Domain.csproj", "{4741BD30-B01B-4805-A155-FEC3B5A5EFD8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProgressTestTask.Service", "ProgressTestTask.Service\ProgressTestTask.Service.csproj", "{9C6D5D74-B5A1-4E59-821B-D6D09E2E8BFA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC6A0177-9C61-4B58-9F19-B654C7BB74D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC6A0177-9C61-4B58-9F19-B654C7BB74D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC6A0177-9C61-4B58-9F19-B654C7BB74D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC6A0177-9C61-4B58-9F19-B654C7BB74D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{284C73F7-5C34-4942-A691-26517B2C4A9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{284C73F7-5C34-4942-A691-26517B2C4A9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{284C73F7-5C34-4942-A691-26517B2C4A9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{284C73F7-5C34-4942-A691-26517B2C4A9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4741BD30-B01B-4805-A155-FEC3B5A5EFD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4741BD30-B01B-4805-A155-FEC3B5A5EFD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4741BD30-B01B-4805-A155-FEC3B5A5EFD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4741BD30-B01B-4805-A155-FEC3B5A5EFD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C6D5D74-B5A1-4E59-821B-D6D09E2E8BFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C6D5D74-B5A1-4E59-821B-D6D09E2E8BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C6D5D74-B5A1-4E59-821B-D6D09E2E8BFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C6D5D74-B5A1-4E59-821B-D6D09E2E8BFA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{284C73F7-5C34-4942-A691-26517B2C4A9E} = {16D0D3D8-976D-40F8-B76E-1974750600AF}
+		{4741BD30-B01B-4805-A155-FEC3B5A5EFD8} = {7D7CAB4B-5FCA-4603-9CB7-89AFE76E0CDB}
+		{9C6D5D74-B5A1-4E59-821B-D6D09E2E8BFA} = {2AC96A76-0768-424F-B6E9-A9D6D66EEC20}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {241A3233-9443-402C-8CD8-79118964341E}
+	EndGlobalSection
+EndGlobal

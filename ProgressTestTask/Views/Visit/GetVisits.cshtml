@@ -1,0 +1,226 @@
+﻿@model IEnumerable<ProgressTestTask.Domain.ViewModels.VisitViewModel>
+
+@{
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/css/ui.jqgrid.min.css" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    #jqg {
+        margin-top: 20px;
+    }
+
+    #addVisitDialog label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    #addVisitDialog select, #addVisitDialog input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    #addVisitBtn {
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #addVisitBtn:hover {
+        background-color: #218838;
+    }
+
+    .ui-dialog-titlebar-close {
+        background-color: transparent;
+        border: none;
+    }
+
+    .ui-dialog-buttonset button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .ui-dialog-buttonset button:hover {
+        background-color: #0056b3;
+    }
+
+    .select2-dropdown.bigdrop {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+
+<h2 class="text-center">Посещения</h2>
+<div class="container">
+    <table id="jqg"></table>
+    <div id="jpager"></div>
+    <button id="addVisitBtn" class="btn btn-success">Добавить приём</button>
+
+    <div id="addVisitDialog" title="Добавить приём" style="display:none;">
+        <form id="addVisitForm" class="form-group">
+            <label for="PatientId">Пациент</label>
+            <select id="PatientId" name="PatientId" class="form-control templatingSelect" required>
+            </select>
+            <span class="text-danger" id="PatientIdError"></span>
+
+            <label for="Diagnosis">Диагноз</label>
+            <input type="text" id="Diagnosis" name="Diagnosis" class="form-control" required />
+            <span class="text-danger" id="DiagnosisError"></span>
+
+            <label for="VisitDate">Дата приёма:</label>
+            <input type="date" id="VisitDate" name="VisitDate" class="form-control" required />
+            <span class="text-danger" id="VisitDateError"></span>
+        </form>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/jquery.jqgrid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () 
+        {
+            // Инициализация таблицы jqGrid для отображения посещений
+            $("#jqg").jqGrid(
+            {
+                url: '@Url.Action("GetData")', 
+                datatype: "json",
+                colNames: ['Пациент', 'Диагноз', 'Код', 'Дата посещения'],
+                colModel: [
+                    { name: 'FIO', index: 'FIO', width: 100, sortable: true }, // ФИО пациента
+                    { name: 'DiagnosisName', index: 'DiagnosisName', width: 300, sortable: true }, // Название диагноза
+                    { name: 'Diagnosis', index: 'Diagnosis', width: 50, sortable: true }, // Код диагноза
+                    { name: 'VisitDate', index: 'VisitDate', width: 100, formatter: 'date', sorttype: 'date', sortable: false } // Дата посещения
+                ],
+                rowNum: 5,
+                rowList: [5, 10, 20],
+                pager: '#jpager',
+                loadonce: true,
+                sortname: 'FIO',
+                sortorder: "desc",
+                caption: "Приёмы",
+                height: "auto",
+                autowidth: true
+            });
+
+            $("#jqg").jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false });
+            $("#jqg").jqGrid('navGrid', '#jpager', {
+                add: false,
+                del: false,
+                edit: false,
+                search: false,
+                refresh: true,
+                refreshtext: "Обновить"
+            });
+        });
+
+        // Обработка нажатия кнопки "Добавить приём"
+        $("#addVisitBtn").click(function () {
+            $("#addVisitDialog").dialog({
+                autoOpen: true,
+                open: function () {
+                    loadPatients(); // Загрузка списка пациентов при открытии диалогового окна
+                },
+                width: 600, 
+                height: 450,
+                modal: true,
+                buttons: {
+                    "Добавить": function () {
+                        // Создание объекта нового приёма на основе введённых данных
+                        var newVisit = {
+                            PatientId: $("#PatientId").val(),
+                            Diagnosis: $("#Diagnosis").val(),
+                            VisitDate: $("#VisitDate").val()
+                        };
+
+                        // AJAX-запрос на добавление нового приёма
+                        $.ajax({
+                            url: '@Url.Action("AddVisit")',
+                            type: 'POST',
+                            data: newVisit,
+                            success: function (response) {
+                                $("#addVisitDialog").dialog("close");
+                                $("#addVisitForm")[0].reset();
+                                Swal.fire('Успех', 'Приём добавлен успешно!', 'success').then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function (xhr) {
+                                var errors = xhr.responseJSON;
+
+                                $(".text-danger").text("");
+                                if (errors.PatientId) {
+                                    $("#PatientIdError").text(errors.PatientId.join(", "));
+                                }
+                                if (errors.Diagnosis) {
+                                    $("#DiagnosisError").text(errors.Diagnosis.join(", "));
+                                }
+                                if (errors.VisitDate) {
+                                    $("#VisitDateError").text(errors.VisitDate.join(", "));
+                                }
+
+                                Swal.fire('Ошибка', 'Исправьте ошибки валидации и попробуйте снова.', 'error'); // Уведомление об ошибках
+                            }
+                        });
+                    },
+                    "Закрыть": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            // Функция для загрузки списка пациентов
+            function loadPatients() {
+                $.ajax({
+                    url: '@Url.Action("GetAllPatients")',
+                    method: 'GET',
+                    success: function (data) {
+                        var $patientSelect = $('#PatientId');
+                        $patientSelect.empty();
+                        $patientSelect.append('<option value="">Выберите пациента</option>');
+
+                        $.each(data, function (index, patient) {
+                            $patientSelect.append('<option value="' + patient.patientId + '">' + patient.lastName + ' ' + patient.firstName + '</option>');
+                        });
+
+                        $patientSelect.select2({
+                            placeholder: "Выберите пациента",
+                            allowClear: true,
+                            dropdownParent: $("#addVisitDialog"),
+                            dropdownAutoWidth: true,
+                            width: '100%',
+                            dropdownCssClass: 'bigdrop',
+                            dropdownCss: { 'max-height': '200px', 'overflow-y': 'auto' }}).on('select2:opening', function (e) {
+                            e.stopPropagation();
+                        });
+                        
+                    },
+                    error: function () {
+                        Swal.fire('Ошибка', 'Ошибка при загрузке списка пациентов.', 'error');
+                    }
+                });
+            }
+        });
+    </script>
+}
